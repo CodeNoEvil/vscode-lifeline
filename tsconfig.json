@@ -1,15 +1,16 @@
 {
-	"compilerOptions": {
-		"module": "commonjs",
-		"target": "es2019",
-		"lib": ["ES2019", "DOM"],
-		"outDir": "out",
-		"sourceMap": true,
-		"strict": true,
-		"rootDir": "src"
-	},
-	"exclude": [
-		"node_modules",
-		".vscode-test"
-	]
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "rootDir": "src",
+    "noEmit": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node", "vscode"]
+  },
+  "include": ["src"]
 }

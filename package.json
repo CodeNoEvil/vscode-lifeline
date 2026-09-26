@@ -1,80 +1,79 @@
 {
-	"name": "vscode-lifeline",
-	"displayName": "Lifeline: Clock & battery",
-	"description": "Display a clock and current battery state in the status bar.",
-	"version": "1.2.0",
-	"author": "Kyle Huggins (http://huggins.io/)",
-	"license": "MIT",
-	"homepage": "https://github.com/kjhx/vscode-lifeline#readme",
-	"publisher": "kjhx",
-	"icon": "media/icon.jpg",
-	"galleryBanner": {
-		"color": "#25292E",
-		"theme": "dark"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/kjhx/vscode-lifeline"
-	},
-	"bugs": {
-		"url": "https://github.com/kjhx/vscode-lifeline/issues"
-	},
-	"engines": {
-		"vscode": "^1.32.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"*"
-	],
-	"main": "./out/extension.js",
-	"contributes": {
-		"configuration": {
-			"title": "Lifeline",
-			"properties": {
-				"lifeline.swap": {
-					"type": "boolean",
-					"default": false,
-					"description": "Swap the display order of the battery and clock. Ignored if device has no battery."
-				},
-				"lifeline.clock.format": {
-					"type": "string",
-					"default": "h:mm:ss A",
-					"description": "Set the display format for the clock."
-				},
-				"lifeline.clock.interval": {
-					"type": "number",
-					"default": 1000,
-					"minimum": 1000,
-					"description": "Set the polling interval for the clock in ms."
-				},
-				"lifeline.battery.interval": {
-					"type": "number",
-					"default": 3000,
-					"minimum": 1000,
-					"description": "Set the polling interval for the battery in ms. Ignored if device has no battery."
-				}
-			}
-		}
-	},
-	"scripts": {
-		"compile": "tsc -p ./",
-		"lint": "eslint . --ext .ts,.tsx",
-		"vscode:prepublish": "yarn compile",
-		"watch": "tsc -watch -p ./",
-		"cd:publish": "vsce publish --yarn --githubBranch main"
-	},
-	"dependencies": {
-		"moment": "^2.29.1",
-		"systeminformation": "^4.30.11"
-	},
-	"devDependencies": {
-		"@types/vscode": "^1.32.0",
-		"@typescript-eslint/eslint-plugin": "^3.0.2",
-		"@typescript-eslint/parser": "^3.0.2",
-		"eslint": "^7.1.0",
-		"typescript": "^4.0.2",
-		"vsce": "^1.81.1"
-	}
+  "name": "vscode-lifeline",
+  "displayName": "Lifeline: Clock & battery",
+  "description": "Display a clock and current battery state in the status bar.",
+  "version": "2.0.0",
+  "author": "Kyle Huggins (http://huggins.io/)",
+  "license": "MIT",
+  "homepage": "https://github.com/CodeNoEvil/vscode-lifeline#readme",
+  "publisher": "kjhx",
+  "icon": "media/icon.jpg",
+  "galleryBanner": {
+    "color": "#25292E",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CodeNoEvil/vscode-lifeline"
+  },
+  "bugs": {
+    "url": "https://github.com/CodeNoEvil/vscode-lifeline/issues"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Lifeline",
+      "properties": {
+        "lifeline.swap": {
+          "type": "boolean",
+          "default": false,
+          "description": "Swap the display order of the battery and clock. Ignored if the device has no battery."
+        },
+        "lifeline.clock.format": {
+          "type": "string",
+          "default": "h:mm:ss A",
+          "description": "Clock format. Tokens match the common moment set (h, hh, H, HH, m, mm, s, ss, A, a, and date tokens). Wrap literal text in [brackets]."
+        },
+        "lifeline.clock.interval": {
+          "type": "number",
+          "default": 1000,
+          "minimum": 1000,
+          "description": "Polling interval for the clock, in milliseconds."
+        },
+        "lifeline.battery.interval": {
+          "type": "number",
+          "default": 3000,
+          "minimum": 1000,
+          "description": "Polling interval for the battery, in milliseconds. Ignored if the device has no battery."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "test": "tsc -p tsconfig.test.json && node --test out-test/test/power.test.js",
+    "lint": "eslint .",
+    "check": "tsc -p ./ --noEmit",
+    "vscode:prepublish": "npm run check && npm test && npm run compile",
+    "package": "vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "eslint": "^9.28.0",
+    "typescript": "^5.8.0",
+    "typescript-eslint": "^8.34.0"
+  }
 }

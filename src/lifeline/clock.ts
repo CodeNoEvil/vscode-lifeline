@@ -1,8 +1,8 @@
-import moment = require('moment');
-import { StatusBarAlignment, StatusBarItem, window } from 'vscode';
-import { Position } from '../constants';
-import { ExtensionConfiguration } from '../interfaces';
-import { utils } from './utils';
+import { StatusBarAlignment, StatusBarItem, window } from "vscode";
+import { formatClock } from "../clock-format";
+import { getConfig } from "../config";
+import { Position } from "../constants";
+import { ExtensionConfiguration } from "../interfaces";
 
 export class Clock {
   private config: ExtensionConfiguration;
@@ -13,25 +13,20 @@ export class Clock {
     this.config = currentConfig;
     this.clock = this.createClock();
     this.interval = this.startClock();
-    
     this.clock.show();
   }
 
-  getClock(): StatusBarItem {
-    return this.clock;
-  }
-
-  updateConfig() {
-    this.config = utils.getConfig();
+  updateConfig(): void {
+    this.config = getConfig();
     this.redraw();
   }
 
-  dispose() {
+  dispose(): void {
     this.clock.dispose();
     clearInterval(this.interval);
   }
 
-  redraw() {
+  private redraw(): void {
     this.dispose();
     this.clock = this.createClock();
     this.interval = this.startClock();
@@ -43,10 +38,10 @@ export class Clock {
   }
 
   private startClock(): NodeJS.Timeout {
-    this.clock.text = moment().format(this.config.clockFormat);
-    
-    return setInterval(() => {
-      this.clock.text = moment().format(this.config.clockFormat);
-    }, this.config.clockInterval);
+    const paint = (): void => {
+      this.clock.text = formatClock(new Date(), this.config.clockFormat);
+    };
+    paint();
+    return setInterval(paint, this.config.clockInterval);
   }
 }

@@ -1,60 +1,73 @@
-import { battery as batteryInfo } from 'systeminformation';
-import { StatusBarAlignment, StatusBarItem, window } from 'vscode';
-import { BatteryLevel, Position } from '../constants';
-import { ExtensionConfiguration } from '../interfaces';
-import { utils } from './utils';
+import { StatusBarAlignment, StatusBarItem, window } from "vscode";
+import { getConfig } from "../config";
+import { Position } from "../constants";
+import { ExtensionConfiguration } from "../interfaces";
+import { formatBattery, readBattery } from "../power";
 
 export class Battery {
   private config: ExtensionConfiguration;
-  private battery: StatusBarItem;
+  private item: StatusBarItem | undefined;
   private interval: NodeJS.Timeout;
 
   constructor(currentConfig: ExtensionConfiguration) {
     this.config = currentConfig;
-    this.battery = this.createBattery();
-    this.interval = this.startBattery();
-
-    this.battery.show();
+    void this.refresh();
+    this.interval = setInterval(() => {
+      void this.refresh();
+    }, this.config.batteryInterval);
   }
 
-  getClock(): StatusBarItem {
-    return this.battery;
+  updateConfig(): void {
+    this.config = getConfig();
+    this.restart();
+    if (!this.item) {
+      return;
+    }
+    const text = this.item.text;
+    const tooltip = this.item.tooltip;
+    this.item.dispose();
+    this.item = this.createItem();
+    this.item.text = text;
+    this.item.tooltip = tooltip;
+    this.item.show();
   }
 
-  updateConfig() {
-    this.config = utils.getConfig();
-    this.redraw();
-  }
-
-  dispose() {
-    this.battery.dispose();
+  dispose(): void {
     clearInterval(this.interval);
+    this.item?.dispose();
+    this.item = undefined;
   }
 
-  redraw() {
-    this.dispose();
-    this.battery = this.createBattery();
-    this.interval = this.startBattery();
-    this.battery.show();
+  private restart(): void {
+    clearInterval(this.interval);
+    this.interval = setInterval(() => {
+      void this.refresh();
+    }, this.config.batteryInterval);
   }
 
-  private createBattery(): StatusBarItem {
+  private createItem(): StatusBarItem {
     return window.createStatusBarItem(StatusBarAlignment.Right, this.config.swap ? Position.RIGHT : Position.LEFT);
   }
 
-  private updateBattery(): void {
-    batteryInfo().then((data) => {
-      const level = Math.min(Math.max(data.percent, BatteryLevel.MIN), BatteryLevel.MAX);
-      const charging = data.ischarging ? '+' : '';
-      this.battery.text = `${charging}${level}%`;
-    });
+  private hide(): void {
+    this.item?.dispose();
+    this.item = undefined;
   }
 
-  private startBattery(): NodeJS.Timeout {
-    this.updateBattery();
-
-    return setInterval(() => {
-      this.updateBattery();
-    }, this.config.batteryInterval);
+  private async refresh(): Promise<void> {
+    const probe = await readBattery();
+    if (!probe.ok) {
+      return;
+    }
+    if (!probe.reading) {
+      this.hide();
+      return;
+    }
+    if (!this.item) {
+      this.item = this.createItem();
+    }
+    this.item.text = formatBattery(probe.reading);
+    this.item.tooltip = probe.reading.charging ? "Charging" : "On battery";
+    this.item.show();
   }
 }

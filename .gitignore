@@ -73,6 +73,9 @@ build/Release
 
 # Dependency directories
 node_modules/
+dist/
+out-test/
+*.vsix
 jspm_packages/
 
 # TypeScript v1 declaration files
